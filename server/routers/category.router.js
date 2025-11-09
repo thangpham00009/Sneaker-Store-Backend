@@ -9,10 +9,10 @@ import {
 
 const categoryRouter = express.Router();
 
- categoryRouter.get("/categories", getAllCategories);
- categoryRouter.get("/categories/:slug", getCategoryBySlug);
- categoryRouter.post("/categories", createCategory);
- categoryRouter.put("/categories/:id", updateCategory);
- categoryRouter.delete("/categories/:id", deleteCategory);
+ categoryRouter.get("/api/v1/categories", getAllCategories);
+ categoryRouter.get("/api/v1/categories/:slug", getCategoryBySlug);
+ categoryRouter.post("/api/v1/categories", createCategory);
+ categoryRouter.put("/api/v1/categories/:id", updateCategory);
+ categoryRouter.delete("/api/v1/categories/:id", deleteCategory);
 
 export default categoryRouter;

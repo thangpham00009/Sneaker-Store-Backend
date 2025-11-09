@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from "sequelize";
 import { sequelize } from "../config/connect.js";
 
-const Category = sequelize.define("Category", {
+const Brand = sequelize.define("Brand", {
   id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING(255), allowNull: false },
   slug: { type: DataTypes.STRING(255), allowNull: false },
@@ -9,8 +9,8 @@ const Category = sequelize.define("Category", {
   created_at: { type: DataTypes.DATE, allowNull: true, defaultValue: Sequelize.NOW },
   updated_at: { type: DataTypes.DATE, allowNull: true, defaultValue: Sequelize.NOW },
 }, {
-  tableName: "categories",
+  tableName: "brands",
   timestamps: false,
 });
 
-export default Category;
+export default Brand;

@@ -1,13 +1,25 @@
-const express = require('express');
-const cors = require('cors');
+import express from "express";
+import cors from "cors";
+import { connectDB, sequelize } from "./config/connect.js";
+import categoryRouter from "./routers/category.router.js";
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const port = 8080;
-app.listen(port, () => {
-    console.log("Server đang chạy trên port " + port);
-})
+
+(async () => {
+  try {
+    await connectDB();
+    await sequelize.sync({ force: false, alter: false });
+    app.use(categoryRouter);
+    app.listen(port, () => {
+      console.log(`Server đang chạy trên port ${port}`);
+    });
+  } catch (err) {
+    console.error("Lỗi khi khởi động server:", err);
+    process.exit(1); 
+  }
+})();

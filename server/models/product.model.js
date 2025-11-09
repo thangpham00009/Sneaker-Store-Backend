@@ -1,16 +1,17 @@
 import { Sequelize, DataTypes } from "sequelize";
 import { sequelize } from "../config/connect.js";
 
-const Category = sequelize.define("Category", {
+const Product = sequelize.define("Product", {
   id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING(255), allowNull: false },
-  slug: { type: DataTypes.STRING(255), allowNull: false },
-  status: { type: DataTypes.ENUM("Active", "Inactive"), allowNull: false, defaultValue: "Active" },
+  price: { type: DataTypes.FLOAT, allowNull: false },
+  description: { type: DataTypes.TEXT },
+  stockQuantity: { type: DataTypes.INTEGER, defaultValue: 0 },
   created_at: { type: DataTypes.DATE, allowNull: true, defaultValue: Sequelize.NOW },
   updated_at: { type: DataTypes.DATE, allowNull: true, defaultValue: Sequelize.NOW },
 }, {
-  tableName: "categories",
+  tableName: "products",
   timestamps: false,
 });
 
-export default Category;
+export default Product;

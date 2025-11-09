@@ -1,16 +1,15 @@
 import { Sequelize, DataTypes } from "sequelize";
 import { sequelize } from "../config/connect.js";
 
-const Category = sequelize.define("Category", {
+const Review = sequelize.define("Review", {
   id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
-  name: { type: DataTypes.STRING(255), allowNull: false },
-  slug: { type: DataTypes.STRING(255), allowNull: false },
-  status: { type: DataTypes.ENUM("Active", "Inactive"), allowNull: false, defaultValue: "Active" },
+  content: { type: DataTypes.TEXT, allowNull: false },
+  rating: { type: DataTypes.INTEGER, defaultValue: 5 },
   created_at: { type: DataTypes.DATE, allowNull: true, defaultValue: Sequelize.NOW },
   updated_at: { type: DataTypes.DATE, allowNull: true, defaultValue: Sequelize.NOW },
 }, {
-  tableName: "categories",
+  tableName: "reviews",
   timestamps: false,
 });
 
-export default Category;
+export default Review;
