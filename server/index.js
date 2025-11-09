@@ -5,6 +5,8 @@ import { connectDB, sequelize } from "./config/connect.js";
 import categoryRouter from "./routers/category.router.js";
 import brandRouter from "./routers/brand.router.js";
 import adminRouter from "./routers/admin.router.js";
+import productRouter from "./routers/product.router.js";
+import promotionRouter from "./routers/promotion.router.js";
 import dotenv from "dotenv";
 dotenv.config();
 const app = express();
@@ -27,6 +29,8 @@ const port = 8080;
     app.use(categoryRouter);
     app.use(brandRouter);
     app.use(adminRouter);
+    app.use(productRouter);
+    app.use(promotionRouter);
     app.listen(port, () => {
       console.log(`Server đang chạy trên port ${port}`);
     });

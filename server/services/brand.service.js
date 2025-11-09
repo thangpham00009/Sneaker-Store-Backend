@@ -1,4 +1,8 @@
 import Brand from "../models/brand.model.js";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} from "./cloudinary.service.js";
 
 export const getAllBrandsService = async () => {
   try {
@@ -22,8 +26,12 @@ export const getBrandBySlugService = async (slug) => {
   }
 };
 
-export const createBrandService = async (brandData) => {
+export const createBrandService = async (brandData, imageFile) => {
   try {
+    if (imageFile) {
+      const imageUrl = await uploadToCloudinary(imageFile, "Brands");
+      brandData.image = imageUrl;
+    }
     const brand = await Brand.create(brandData);
     return brand;
   } catch (error) {
@@ -31,12 +39,21 @@ export const createBrandService = async (brandData) => {
   }
 };
 
-export const updateBrandService = async (id, brandData) => {
+export const updateBrandService = async (id, brandData, imageFile) => {
   try {
     const brand = await Brand.findByPk(id);
     if (!brand) {
       throw new Error("Brand not found");
     }
+
+    if (imageFile) {
+      if (brand.image) {
+        await deleteFromCloudinary(brand.image);
+      }
+      const imageUrl = await uploadToCloudinary(imageFile, "Brands");
+      brandData.image = imageUrl;
+    }
+
     await brand.update(brandData);
     return brand;
   } catch (error) {
@@ -50,6 +67,10 @@ export const deleteBrandService = async (id) => {
     if (!brand) {
       throw new Error("Brand not found");
     }
+    if (brand.image) {
+      await deleteFromCloudinary(brand.image);
+    }
+
     await brand.destroy();
     return true;
   } catch (error) {

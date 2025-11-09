@@ -22,7 +22,9 @@ export const getCategoryBySlug = async (req, res) => {
 
 export const createCategory = async (req, res) => {
   try {
-    const category = await CategoryService.create(req.body);
+    const categoryData = req.body;
+    const file = req.file;
+    const category = await CategoryService.create(categoryData, file);
     res.status(201).json({ success: true, data: category });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -31,7 +33,10 @@ export const createCategory = async (req, res) => {
 
 export const updateCategory = async (req, res) => {
   try {
-    const updated = await CategoryService.update(req.params.id, req.body);
+    const { id } = req.params;
+    const categoryData = req.body;
+    const file = req.file;
+    const updated = await CategoryService.update(id, categoryData, file);
     if (!updated)
       return res.status(404).json({ success: false, message: "Not found" });
     res.status(200).json({ success: true, data: updated });

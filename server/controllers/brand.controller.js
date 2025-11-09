@@ -46,6 +46,9 @@ export const getBrandBySlug = async (req, res) => {
 export const createBrand = async (req, res) => {
   try {
     const brandData = req.body;
+    if (req.file) {
+      brandData.image = req.file.path;
+    }
     const brand = await createBrandService(brandData);
     res.status(201).json({
       status: "success",
