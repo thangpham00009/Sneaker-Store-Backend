@@ -1,4 +1,3 @@
-import { Sequelize } from "sequelize";
 import { sequelize } from "../config/connect.js";
 
 // Import các model
@@ -15,7 +14,6 @@ import Promotion from "./promotion.model.js";
 import Invoice from "./invoice.model.js";
 import ShippingCost from "./shippingcost.model.js";
 
-// ===================== QUAN HỆ ===================== //
 // Brand - Product (1-N)
 Brand.hasMany(Product, { foreignKey: { name: "brand_id", allowNull: false }, as: "products" });
 Product.belongsTo(Brand, { foreignKey: { name: "brand_id", allowNull: false }, as: "brand" });
@@ -60,7 +58,6 @@ Order.hasOne(Invoice, { foreignKey: { name: "order_id", allowNull: false }, as: 
 Order.belongsTo(ShippingCost, { foreignKey: { name: "shipping_cost_id", allowNull: true }, as: "shippingCost" });
 ShippingCost.hasMany(Order, { foreignKey: { name: "shipping_cost_id", allowNull: true }, as: "orders" });
 
-// ===================== EXPORT ===================== //
 export {
   sequelize,
   Product,

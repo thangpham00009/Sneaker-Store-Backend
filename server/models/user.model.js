@@ -6,7 +6,6 @@ const User = sequelize.define("User", {
   username: { type: DataTypes.STRING(255), allowNull: false },
   email: { type: DataTypes.STRING(255), allowNull: false, unique: true },
   password: { type: DataTypes.STRING(255), allowNull: false },
-  role: { type: DataTypes.ENUM("Admin", "User"), allowNull: false, defaultValue: "User" },
   created_at: { type: DataTypes.DATE, allowNull: true, defaultValue: Sequelize.NOW },
   updated_at: { type: DataTypes.DATE, allowNull: true, defaultValue: Sequelize.NOW },
 }, {

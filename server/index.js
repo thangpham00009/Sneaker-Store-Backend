@@ -25,7 +25,7 @@ const port = 8080;
 (async () => {
   try {
     await connectDB();
-    await sequelize.sync({ force: false, alter: false });
+    await sequelize.sync({ alter: true });
     app.use(categoryRouter);
     app.use(brandRouter);
     app.use(adminRouter);

@@ -24,6 +24,17 @@ export const getProductByIdService = async (id) => {
   }
 };
 
+export const getProductBySlugService = async (slug) => {
+  try {
+    const product = await Product.findOne({
+      where: { slug },
+    });
+    return product;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const createProductService = async (productData, imageFiles) => {
   try {
     const imageUrls = [];

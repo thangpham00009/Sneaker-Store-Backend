@@ -6,7 +6,7 @@ import {
   updatePromotion,
   deletePromotion,
 } from "../controllers/promotion.controller.js";
-import { authenticateAdmin } from "../middlewares/auth.middleware.js";
+import { admin } from "../middlewares/auth.middleware.js";
 import { uploadPromotion } from "../middlewares/upload.middleware.js";
 
 const promotionRouter = express.Router();
@@ -15,22 +15,22 @@ const promotionRouter = express.Router();
 promotionRouter.get("/api/v1/promotions", getAllPromotions);
 promotionRouter.get("/api/v1/promotions/:id", getPromotionById);
 
-// Protected routes (require admin authentication)
+// Protected routes
 promotionRouter.post(
   "/api/v1/promotions",
-  authenticateAdmin,
+  admin,
   uploadPromotion.single("image"),
   createPromotion
 );
 promotionRouter.put(
   "/api/v1/promotions/:id",
-  authenticateAdmin,
+  admin,
   uploadPromotion.single("image"),
   updatePromotion
 );
 promotionRouter.delete(
   "/api/v1/promotions/:id",
-  authenticateAdmin,
+  admin,
   deletePromotion
 );
 

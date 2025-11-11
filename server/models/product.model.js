@@ -6,10 +6,31 @@ const Product = sequelize.define(
   {
     id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING(255), allowNull: false },
+    slug: { type: DataTypes.STRING(255), allowNull: false, unique: true },
     price: { type: DataTypes.FLOAT, allowNull: false },
     description: { type: DataTypes.TEXT },
     images: { type: DataTypes.ARRAY(DataTypes.STRING(500)), defaultValue: [] },
     stockQuantity: { type: DataTypes.INTEGER, defaultValue: 0 },
+    brand_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "brands",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "CASCADE",
+    },
+    category_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "categories",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "CASCADE",
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: true,
