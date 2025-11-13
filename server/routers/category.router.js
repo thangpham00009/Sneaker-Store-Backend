@@ -5,6 +5,8 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
+  getCategoryById,
+  getCategoryProducts,
 } from "../controllers/category.controller.js";
 import { admin } from "../middlewares/auth.middleware.js";
 import { uploadCategory } from "../middlewares/upload.middleware.js";
@@ -13,18 +15,20 @@ const categoryRouter = express.Router();
 
 categoryRouter.get("/api/v1/categories", getAllCategories);
 categoryRouter.get("/api/v1/categories/:slug", getCategoryBySlug);
+categoryRouter.get("/api/v1/categories/id/:id", getCategoryById);
 categoryRouter.post(
   "/api/v1/categories",
   admin,
-  uploadCategory.single("image"),
+  uploadCategory,
   createCategory
 );
 categoryRouter.put(
   "/api/v1/categories/:id",
   admin,
-  uploadCategory.single("image"),
+  uploadCategory,
   updateCategory
 );
 categoryRouter.delete("/api/v1/categories/:id", admin, deleteCategory);
+categoryRouter.get("/api/v1/categories/:id/products", getCategoryProducts);
 
 export default categoryRouter;

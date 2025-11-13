@@ -1,64 +1,50 @@
-import {
-  getAllBrandsService,
-  getBrandBySlugService,
-  createBrandService,
-  updateBrandService,
-  deleteBrandService,
-} from "../services/brand.service.js";
+import { BrandService } from "../services/brand.service.js";
 
 export const getAllBrands = async (req, res) => {
   try {
-    const brands = await getAllBrandsService();
-    res.status(200).json({
-      status: "success",
-      data: brands,
+    const { page, limit, search, status } = req.query;
+    const result = await BrandService.getAll({
+      page: parseInt(page) || 1,
+      limit: parseInt(limit) || 10,
+      search,
+      status,
     });
+    res.status(200).json({ success: true, ...result });
   } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 export const getBrandBySlug = async (req, res) => {
   try {
-    const { slug } = req.params;
-    const brand = await getBrandBySlugService(slug);
-    if (!brand) {
-      return res.status(404).json({
-        status: "error",
-        message: "Brand not found",
-      });
-    }
-    res.status(200).json({
-      status: "success",
-      data: brand,
-    });
+    const brand = await BrandService.getBySlug(req.params.slug);
+    if (!brand)
+      return res.status(404).json({ success: false, message: "Not found" });
+    res.status(200).json({ success: true, data: brand });
   } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getBrandById = async (req, res) => {
+  try {
+    const brand = await BrandService.getById(req.params.id);
+    if (!brand)
+      return res.status(404).json({ success: false, message: "Not found" });
+    res.status(200).json({ success: true, data: brand });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 export const createBrand = async (req, res) => {
   try {
     const brandData = req.body;
-    if (req.file) {
-      brandData.image = req.file.path;
-    }
-    const brand = await createBrandService(brandData);
-    res.status(201).json({
-      status: "success",
-      data: brand,
-    });
+    const file = req.file;
+    const brand = await BrandService.create(brandData, file);
+    res.status(201).json({ success: true, data: brand });
   } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -66,31 +52,32 @@ export const updateBrand = async (req, res) => {
   try {
     const { id } = req.params;
     const brandData = req.body;
-    const brand = await updateBrandService(id, brandData);
-    res.status(200).json({
-      status: "success",
-      data: brand,
-    });
+    const file = req.file;
+    const updated = await BrandService.update(id, brandData, file);
+    if (!updated)
+      return res.status(404).json({ success: false, message: "Not found" });
+    res.status(200).json({ success: true, data: updated });
   } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 export const deleteBrand = async (req, res) => {
   try {
-    const { id } = req.params;
-    await deleteBrandService(id);
-    res.status(200).json({
-      status: "success",
-      message: "Brand deleted successfully",
-    });
+    const deleted = await BrandService.delete(req.params.id);
+    if (!deleted)
+      return res.status(404).json({ success: false, message: "Not found" });
+    res.status(200).json({ success: true, message: "Deleted successfully" });
   } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getBrandProducts = async (req, res) => {
+  try {
+    const products = await BrandService.getProducts(req.params.id);
+    res.status(200).json({ success: true, data: products });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
