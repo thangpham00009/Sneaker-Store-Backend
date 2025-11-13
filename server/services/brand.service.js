@@ -1,79 +1,83 @@
 import Brand from "../models/brand.model.js";
+import Product from "../models/product.model.js";
 import {
   uploadToCloudinary,
   deleteFromCloudinary,
 } from "./cloudinary.service.js";
+import { PaginationService } from "./pagination.service.js";
 
-export const getAllBrandsService = async () => {
-  try {
-    const brands = await Brand.findAll({
+export const BrandService = {
+  async getAll({ page = 1, limit = 10, search, status }) {
+    const where = {};
+    if (status) where.status = status;
+
+    return await PaginationService.paginate(Brand, {
+      page,
+      limit,
+      where,
+      search: search ? { key: "name", value: search } : null,
       order: [["created_at", "DESC"]],
     });
-    return brands;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
+  },
 
-export const getBrandBySlugService = async (slug) => {
-  try {
-    const brand = await Brand.findOne({
-      where: { slug },
-    });
-    return brand;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
+  async getBySlug(slug) {
+    return await Brand.findOne({ where: { slug, status: "Active" } });
+  },
 
-export const createBrandService = async (brandData, imageFile) => {
-  try {
-    if (imageFile) {
-      const imageUrl = await uploadToCloudinary(imageFile, "Brands");
-      brandData.image = imageUrl;
+  async getById(id) {
+    return await Brand.findByPk(id);
+  },
+
+  async create(data, file) {
+    try {
+      if (file) data.image = file.path;
+      return await Brand.create(data);
+    } catch (error) {
+      console.error("BrandService.create error:", error);
+      throw error;
     }
-    const brand = await Brand.create(brandData);
-    return brand;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
+  },
 
-export const updateBrandService = async (id, brandData, imageFile) => {
-  try {
-    const brand = await Brand.findByPk(id);
-    if (!brand) {
-      throw new Error("Brand not found");
+  async update(id, data, file) {
+    try {
+      const brand = await Brand.findByPk(id);
+      if (!brand) return null;
+
+      if (file) {
+        if (brand.image) await deleteFromCloudinary(brand.image);
+        data.image = file.path;
+      }
+
+      const [updated] = await Brand.update(data, { where: { id } });
+      if (!updated) return null;
+      return await Brand.findByPk(id);
+    } catch (error) {
+      console.error("BrandService.update error:", error);
+      throw error;
     }
+  },
 
-    if (imageFile) {
+  async delete(id) {
+    try {
+      const brand = await Brand.findByPk(id);
+      if (!brand) return false;
+
       if (brand.image) {
         await deleteFromCloudinary(brand.image);
       }
-      const imageUrl = await uploadToCloudinary(imageFile, "Brands");
-      brandData.image = imageUrl;
-    }
 
-    await brand.update(brandData);
-    return brand;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-export const deleteBrandService = async (id) => {
-  try {
-    const brand = await Brand.findByPk(id);
-    if (!brand) {
-      throw new Error("Brand not found");
+      const deleted = await Brand.destroy({ where: { id } });
+      return deleted > 0;
+    } catch (error) {
+      console.error("BrandService.delete error:", error);
+      throw error;
     }
-    if (brand.image) {
-      await deleteFromCloudinary(brand.image);
-    }
+  },
 
-    await brand.destroy();
-    return true;
-  } catch (error) {
-    throw new Error(error);
-  }
+  async getProducts(brandId) {
+    return await Product.findAll({
+      where: { brand_id: brandId },
+      order: [["created_at", "DESC"]],
+    });
+  },
 };
