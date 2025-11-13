@@ -10,6 +10,11 @@ const Product = sequelize.define(
     price: { type: DataTypes.FLOAT, allowNull: false },
     description: { type: DataTypes.TEXT },
     images: { type: DataTypes.ARRAY(DataTypes.STRING(500)), defaultValue: [] },
+    status: {
+      type: DataTypes.ENUM("Active", "Inactive"),
+      allowNull: false,
+      defaultValue: "Active",
+    },
     stockQuantity: { type: DataTypes.INTEGER, defaultValue: 0 },
     brand_id: {
       type: DataTypes.BIGINT,

@@ -31,12 +31,14 @@ export const loginAdmin = async (req, res) => {
     res.cookie("adminToken", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 60 * 60 * 1000, // 1 hour
     });
 
     res.cookie("adminRefreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -51,6 +53,7 @@ export const loginAdmin = async (req, res) => {
     });
   }
 };
+
 
 export const logoutAdmin = async (req, res) => {
   res.cookie("adminToken", "", {
@@ -68,24 +71,28 @@ export const logoutAdmin = async (req, res) => {
   });
 };
 
+
 export const refreshAdminToken = async (req, res) => {
   try {
-    const refreshToken = req.cookies.adminRefreshToken;
-    if (!refreshToken) {
+    const oldRefreshToken = req.cookies.adminRefreshToken;
+    if (!oldRefreshToken) {
       throw new Error("Refresh token not found");
     }
 
-    const tokens = await refreshTokenService(refreshToken);
+    const { token, refreshToken: newRefreshToken } =
+      await refreshTokenService(oldRefreshToken);
 
-    res.cookie("adminToken", tokens.token, {
+    res.cookie("adminToken", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 60 * 60 * 1000, // 1 hour
     });
 
-    res.cookie("adminRefreshToken", tokens.refreshToken, {
+    res.cookie("adminRefreshToken", newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 

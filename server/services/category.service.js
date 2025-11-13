@@ -1,13 +1,23 @@
 import Category from "../models/category.model.js";
+import Product from "../models/product.model.js";
 import {
   uploadToCloudinary,
   deleteFromCloudinary,
 } from "./cloudinary.service.js";
+import { PaginationService } from "./pagination.service.js";
 
 export const CategoryService = {
-  // Lấy tất cả category đang active
-  async getAll() {
-    return await Category.findAll({ where: { status: "Active" } });
+ async getAll({ page = 1, limit = 10, search, status }) {
+    const where = {};
+    if (status) where.status = status;
+
+    return await PaginationService.paginate(Category, {
+      page,
+      limit,
+      where,
+      search: search ? { key: "name", value: search } : null,
+      order: [["created_at", "DESC"]],
+    });
   },
 
   // Lấy category theo slug
@@ -15,41 +25,38 @@ export const CategoryService = {
     return await Category.findOne({ where: { slug, status: "Active" } });
   },
 
-  // Tạo mới category
-  async create(data, imageFile) {
+  //Lấy theo id
+  async getById(id) {
+    return await Category.findByPk(id);
+  },
+ async create(data, file) {
     try {
-      if (imageFile) {
-        const imageUrl = await uploadToCloudinary(imageFile, "Categories");
-        data.image = imageUrl;
-      }
+      if (file) data.image = file.path; 
       return await Category.create(data);
     } catch (error) {
+      console.error("CategoryService.create error:", error);
       throw error;
     }
   },
 
-  // Cập nhật category
-  async update(id, data, imageFile) {
+  async update(id, data, file) {
     try {
       const category = await Category.findByPk(id);
       if (!category) return null;
 
-      if (imageFile) {
-        if (category.image) {
-          await deleteFromCloudinary(category.image);
-        }
-        const imageUrl = await uploadToCloudinary(imageFile, "Categories");
-        data.image = imageUrl;
+      if (file) {
+        if (category.image) await deleteFromCloudinary(category.image);
+        data.image = file.path;
       }
 
       const [updated] = await Category.update(data, { where: { id } });
       if (!updated) return null;
       return await Category.findByPk(id);
     } catch (error) {
+      console.error("CategoryService.update error:", error);
       throw error;
     }
   },
-
   // Xóa category
   async delete(id) {
     try {
@@ -64,5 +71,11 @@ export const CategoryService = {
     } catch (error) {
       throw error;
     }
+  },
+   async getProducts(categoryId) {
+    return await Product.findAll({
+      where: { category_id: categoryId },
+      order: [["created_at", "DESC"]],
+    });
   },
 };

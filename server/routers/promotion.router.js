@@ -19,13 +19,13 @@ promotionRouter.get("/api/v1/promotions/:id", getPromotionById);
 promotionRouter.post(
   "/api/v1/promotions",
   admin,
-  uploadPromotion.single("image"),
+  uploadPromotion,
   createPromotion
 );
 promotionRouter.put(
   "/api/v1/promotions/:id",
   admin,
-  uploadPromotion.single("image"),
+  uploadPromotion,
   updatePromotion
 );
 promotionRouter.delete(
