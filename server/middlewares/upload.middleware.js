@@ -8,6 +8,9 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+/**
+ * Upload 1 file cho các entity khác (Category, Brand, Promotion)
+ */
 export const dynamicUpload = (baseFolder, fieldName) => {
   const storage = new CloudinaryStorage({
     cloudinary,
@@ -30,18 +33,31 @@ export const dynamicUpload = (baseFolder, fieldName) => {
   return multer({ storage }).single(fieldName);
 };
 
+// Single file upload
 export const uploadCategory = dynamicUpload("Categories", "image");
 export const uploadBrand = dynamicUpload("Brands", "image");
 export const uploadProduct = dynamicUpload("Products", "image");
 export const uploadPromotion = dynamicUpload("Promotions", "image");
 
+/**
+ * Upload nhiều ảnh sản phẩm, folder theo tên sản phẩm
+ */
 export const uploadProductImages = (req, res, next) => {
   const storage = new CloudinaryStorage({
     cloudinary,
-    params: {
-      folder: "PERN_SNEAKER/Products",
-      allowed_formats: ["jpg", "jpeg", "png", "gif"],
-      transformation: [{ width: 1000, height: 1000, crop: "limit" }],
+    params: async (req, file) => {
+      const folderName =
+        req.body && req.body.name
+          ? req.body.name.trim().replace(/\s+/g, "_")
+          : "default";
+
+      return {
+        folder: `PERN_SNEAKER/Products/${folderName}`,
+        allowed_formats: ["jpg", "jpeg", "png", "gif"],
+        transformation: [{ width: 1000, height: 1000, crop: "limit" }],
+        use_filename: true,
+        unique_filename: true,
+      };
     },
   });
 

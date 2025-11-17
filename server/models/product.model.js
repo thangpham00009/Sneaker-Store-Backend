@@ -9,7 +9,6 @@ const Product = sequelize.define(
     slug: { type: DataTypes.STRING(255), allowNull: false, unique: true },
     price: { type: DataTypes.FLOAT, allowNull: false },
     description: { type: DataTypes.TEXT },
-    images: { type: DataTypes.ARRAY(DataTypes.STRING(500)), defaultValue: [] },
     status: {
       type: DataTypes.ENUM("Active", "Inactive"),
       allowNull: false,
@@ -19,37 +18,17 @@ const Product = sequelize.define(
     brand_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      references: {
-        model: "brands",
-        key: "id",
-      },
+      references: { model: "brands", key: "id" },
       onUpdate: "CASCADE",
       onDelete: "CASCADE",
-    },
-    category_id: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: "categories",
-        key: "id",
-      },
-      onUpdate: "CASCADE",
-      onDelete: "CASCADE",
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: Sequelize.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: Sequelize.NOW,
     },
   },
   {
     tableName: "products",
-    timestamps: false,
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
+    indexes: [{ unique: true, fields: ["slug"] }],
   }
 );
 

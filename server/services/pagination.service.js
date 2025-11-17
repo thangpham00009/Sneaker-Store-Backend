@@ -1,3 +1,5 @@
+import { Op } from "sequelize";
+
 export const PaginationService = {
   async paginate(model, options = {}) {
     const {
@@ -6,16 +8,22 @@ export const PaginationService = {
       where = {},
       search,
       order = [["created_at", "DESC"]],
+      include = [],
     } = options;
 
     const offset = (page - 1) * limit;
-    const query = { where, limit, offset, order };
 
     if (search && search.key && search.value) {
-      query.where[search.key] = { $like: `%${search.value}%` };
+      where[search.key] = { [Op.iLike]: `%${search.value}%` };
     }
 
-    const { count, rows } = await model.findAndCountAll(query);
+    const { count, rows } = await model.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order,
+      include,
+    });
 
     return {
       data: rows,
