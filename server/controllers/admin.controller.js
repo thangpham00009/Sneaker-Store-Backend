@@ -122,3 +122,19 @@ export const getAdminProfile = async (req, res) => {
     });
   }
 };
+
+export const getAdminById = async (req, res) => {
+  try {
+    const adminId = req.params.id;
+    const admin = await getAdminProfileService(adminId);
+    res.status(200).json({
+      status: "success",
+      data: admin,
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};

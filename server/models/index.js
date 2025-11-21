@@ -13,7 +13,8 @@ import Review from "./review.model.js";
 import Promotion from "./promotion.model.js";
 import Invoice from "./invoice.model.js";
 import ShippingCost from "./shippingcost.model.js";
-
+import WarehouseHistory from "./warehouse_history.model.js";
+import Admin from "./admin.model.js";
 // ------------------ RELATIONSHIPS ------------------
 
 // Brand - Product (1-N)
@@ -81,8 +82,19 @@ Order.hasOne(Invoice, { foreignKey: "order_id", as: "invoice" });
 Order.belongsTo(ShippingCost, { foreignKey: "shipping_cost_id", as: "shippingCost" });
 ShippingCost.hasMany(Order, { foreignKey: "shipping_cost_id", as: "orders" });
 
+
+// Product - WarehouseHistory (1-N)
+Product.hasMany(WarehouseHistory, { foreignKey: "product_id", as: "warehouseHistories" });
+WarehouseHistory.belongsTo(Product, { foreignKey: "product_id", as: "product" });
+
+// Admin - WarehouseHistory (1-N)
+Admin.hasMany(WarehouseHistory, { foreignKey: "admin_id", as: "warehouseHistories" });
+WarehouseHistory.belongsTo(Admin, { foreignKey: "admin_id", as: "admin" });
+
+
 export {
   sequelize,
+  Admin,
   Product,
   ProductImage,
   Brand,
@@ -95,4 +107,5 @@ export {
   Promotion,
   Invoice,
   ShippingCost,
+  WarehouseHistory,
 };

@@ -5,6 +5,7 @@ import {
   logoutAdmin,
   refreshAdminToken,
   getAdminProfile,
+  getAdminById,
 } from "../controllers/admin.controller.js";
 import { admin } from "../middlewares/auth.middleware.js";
 
@@ -18,5 +19,5 @@ adminRouter.post("/api/v1/admin/refresh-token", refreshAdminToken);
 // Protected routes
 adminRouter.post("/api/v1/admin/logout", admin, logoutAdmin);
 adminRouter.get("/api/v1/admin/profile", admin, getAdminProfile);
-
+adminRouter.get("/api/v1/admin/id/:id", admin, getAdminById);
 export default adminRouter;

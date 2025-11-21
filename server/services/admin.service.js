@@ -79,3 +79,17 @@ export const getAdminProfileService = async (adminId) => {
     throw error;
   }
 };
+
+
+export const getAdminByIdService = async (adminId) => {
+  try {
+    const admin = await Admin.findByPk(adminId);
+    if (!admin) {
+      throw new Error("Admin not found");
+    }
+    const { password, ...adminWithoutPassword } = admin.toJSON();
+    return adminWithoutPassword;
+  } catch (error) {
+    throw error;
+  }
+};

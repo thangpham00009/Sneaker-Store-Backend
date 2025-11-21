@@ -8,6 +8,7 @@ import adminRouter from "./routers/admin.router.js";
 import productRouter from "./routers/product.router.js";
 import promotionRouter from "./routers/promotion.router.js";
 import dotenv from "dotenv";
+import warehouseHistoryRouter from "./routers/warehouseHistory.router.js";
 dotenv.config();
 const app = express();
 app.use(
@@ -31,6 +32,7 @@ const port = 8080;
     app.use(adminRouter);
     app.use(productRouter);
     app.use(promotionRouter);
+    app.use(warehouseHistoryRouter);
     app.listen(port, () => {
       console.log(`Server đang chạy trên port ${port}`);
     });
