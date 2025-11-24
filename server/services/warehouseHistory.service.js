@@ -31,7 +31,7 @@ static async getAll({
       {
         model: Admin, 
         as: "admin",
-        attributes: ["id", "username"], // chỉ lấy tên
+        attributes: ["id", "username"],
       },
     ],
   };

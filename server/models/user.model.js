@@ -1,16 +1,32 @@
 import { Sequelize, DataTypes } from "sequelize";
 import { sequelize } from "../config/connect.js";
 
-const User = sequelize.define("User", {
-  id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
-  username: { type: DataTypes.STRING(255), allowNull: false },
-  email: { type: DataTypes.STRING(255), allowNull: false, unique: true },
-  password: { type: DataTypes.STRING(255), allowNull: false },
-  created_at: { type: DataTypes.DATE, allowNull: true, defaultValue: Sequelize.NOW },
-  updated_at: { type: DataTypes.DATE, allowNull: true, defaultValue: Sequelize.NOW },
-}, {
-  tableName: "users",
-  timestamps: false,
-});
+const User = sequelize.define(
+  "User",
+  {
+    id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
+
+    username: { type: DataTypes.STRING(255), allowNull: false },
+
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true, 
+        len: [5, 255],
+      },
+    },
+
+    password: { type: DataTypes.STRING(255), allowNull: false },
+
+    created_at: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
+    updated_at: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
+  },
+  {
+    tableName: "users",
+    timestamps: false,
+  }
+);
 
 export default User;

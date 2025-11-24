@@ -15,6 +15,7 @@ import Invoice from "./invoice.model.js";
 import ShippingCost from "./shippingcost.model.js";
 import WarehouseHistory from "./warehouse_history.model.js";
 import Admin from "./admin.model.js";
+import UserAddress from "./user_address.model.js";
 // ------------------ RELATIONSHIPS ------------------
 
 // Brand - Product (1-N)
@@ -91,6 +92,15 @@ WarehouseHistory.belongsTo(Product, { foreignKey: "product_id", as: "product" })
 Admin.hasMany(WarehouseHistory, { foreignKey: "admin_id", as: "warehouseHistories" });
 WarehouseHistory.belongsTo(Admin, { foreignKey: "admin_id", as: "admin" });
 
+// Quan hệ: 1 user có nhiều địa chỉ
+User.hasMany(UserAddress, {
+  foreignKey: { name: "user_id", allowNull: false },
+  as: "addresses",
+});
+UserAddress.belongsTo(User, {
+  foreignKey: { name: "user_id", allowNull: false },
+  as: "user",
+});
 
 export {
   sequelize,
@@ -108,4 +118,5 @@ export {
   Invoice,
   ShippingCost,
   WarehouseHistory,
+  UserAddress,
 };

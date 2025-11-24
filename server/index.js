@@ -9,6 +9,7 @@ import productRouter from "./routers/product.router.js";
 import promotionRouter from "./routers/promotion.router.js";
 import dotenv from "dotenv";
 import warehouseHistoryRouter from "./routers/warehouseHistory.router.js";
+import userRouter from "./routers/user.router.js";
 dotenv.config();
 const app = express();
 app.use(
@@ -30,6 +31,7 @@ const port = 8080;
     app.use(categoryRouter);
     app.use(brandRouter);
     app.use(adminRouter);
+    app.use(userRouter);
     app.use(productRouter);
     app.use(promotionRouter);
     app.use(warehouseHistoryRouter);
