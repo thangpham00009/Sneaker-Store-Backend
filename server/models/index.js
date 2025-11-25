@@ -16,6 +16,8 @@ import ShippingCost from "./shippingcost.model.js";
 import WarehouseHistory from "./warehouse_history.model.js";
 import Admin from "./admin.model.js";
 import UserAddress from "./user_address.model.js";
+import Cart from "./cart.model.js";
+import CartItem from "./cartItem.model.js";
 // ------------------ RELATIONSHIPS ------------------
 
 // Brand - Product (1-N)
@@ -102,6 +104,20 @@ UserAddress.belongsTo(User, {
   as: "user",
 });
 
+
+// User - Cart (1-1)
+User.hasOne(Cart, { foreignKey: "user_id", as: "cart" });
+Cart.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+// Cart - CartItem (1-N)
+Cart.hasMany(CartItem, { foreignKey: "cart_id", as: "items" });
+CartItem.belongsTo(Cart, { foreignKey: "cart_id", as: "cart" });
+
+// CartItem - Product (1-1)
+Product.hasMany(CartItem, { foreignKey: "product_id", as: "cartItems" });
+CartItem.belongsTo(Product, { foreignKey: "product_id", as: "product" });
+
+
 export {
   sequelize,
   Admin,
@@ -119,4 +135,6 @@ export {
   ShippingCost,
   WarehouseHistory,
   UserAddress,
+  Cart,
+  CartItem,
 };
