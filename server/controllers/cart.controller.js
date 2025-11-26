@@ -11,29 +11,33 @@ class CartController {
     }
   }
 
-  async addToCart(req, res) {
-    try {
-      const userId = req.user.id;
-      const { productId, quantity } = req.body;
+async addToCart(req, res) {
+  try {
+    const userId = req.user.id;
+    const { productId, quantity, size } = req.body;
 
-      const item = await CartService.addItem(userId, productId, quantity);
-      res.json(item);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
+    if (!size) return res.status(400).json({ message: "Chưa chọn size" });
+
+    const item = await CartService.addItem(userId, productId, quantity, size);
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
+}
 
-  async updateCartItem(req, res) {
-    try {
-      const userId = req.user.id;
-      const { productId, quantity } = req.body;
 
-      const item = await CartService.updateItem(userId, productId, quantity);
-      res.json(item);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
+async updateCartItem(req, res) {
+  try {
+    const userId = req.user.id;
+    const { productId, quantity, size } = req.body;
+
+    const item = await CartService.updateItem(userId, productId, quantity, size);
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
+}
+
 
   async removeCartItem(req, res) {
     try {

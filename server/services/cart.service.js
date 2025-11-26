@@ -33,11 +33,12 @@ async getUserCart(userId) {
 }
 
   // Thêm sản phẩm vào cart
-  async addItem(userId, productId, quantity = 1) {
+  async addItem(userId, productId, quantity = 1, size) {
     const cart = await this.getUserCart(userId);
 
+    // Tìm theo product_id **và size**
     let item = await CartItem.findOne({
-      where: { cart_id: cart.id, product_id: productId },
+      where: { cart_id: cart.id, product_id: productId, size },
     });
 
     if (item) {
@@ -48,11 +49,13 @@ async getUserCart(userId) {
         cart_id: cart.id,
         product_id: productId,
         quantity,
+        size, // thêm size
       });
     }
 
     return item;
   }
+
 
   // Cập nhật số lượng sản phẩm
   async updateItem(userId, productId, quantity) {

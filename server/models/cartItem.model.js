@@ -22,6 +22,7 @@ const CartItem = sequelize.define(
       onDelete: "CASCADE",
     },
     quantity: { type: DataTypes.INTEGER, defaultValue: 1 },
+    size: { type: DataTypes.STRING, allowNull: true },
   },
   {
     tableName: "cart_items",
