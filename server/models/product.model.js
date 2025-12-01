@@ -15,7 +15,6 @@ const Product = sequelize.define(
       allowNull: false,
       defaultValue: "Active",
     },
-    stockQuantity: { type: DataTypes.INTEGER, defaultValue: 0 },
     brand_id: {
       type: DataTypes.BIGINT,
       allowNull: false,

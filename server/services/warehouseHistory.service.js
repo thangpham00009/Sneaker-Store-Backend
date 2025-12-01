@@ -1,72 +1,100 @@
-import { WarehouseHistory, Product, Admin } from "../models/index.js";
+import {
+  WarehouseHistory,
+  ProductSize,
+  Admin,
+  Product,
+} from "../models/index.js";
 import { PaginationService } from "./pagination.service.js";
 
 export class WarehouseHistoryService {
-  // Lấy tất cả với pagination + filter
-static async getAll({
-  page = 1,
-  limit = 10,
-  productId,
-  searchKey,
-  searchValue,
-}) {
-  const where = {};
-  if (productId) where.product_id = productId;
+  // LẤY TẤT CẢ + FILTER + PAGINATION
+  static async getAll({ page = 1, limit = 10, sizeId, productId }) {
+    const where = {};
+    if (sizeId) where.size_id = sizeId;
 
-  const options = {
-    page,
-    limit,
-    where,
-    search:
-      searchKey && searchValue
-        ? { key: searchKey, value: searchValue }
-        : null,
-    order: [["created_at", "DESC"]],
-    include: [
+    const include = [
       {
-        model: Product, // import Product model
-        as: "product",
-        attributes: ["id", "name"], // chọn fields cần thiết
+        model: ProductSize,
+        as: "size",
+        attributes: ["id", "product_id", "size", "stock"],
+        include: [
+          {
+            model: Product,
+            as: "product",
+            attributes: ["id", "name"],
+          },
+        ],
       },
       {
-        model: Admin, 
+        model: Admin,
         as: "admin",
         attributes: ["id", "username"],
       },
-    ],
-  };
+    ];
 
-  return await PaginationService.paginate(WarehouseHistory, options);
-}
+    if (productId) {
+      include[0].where = { product_id: productId };
+    }
 
+    const options = {
+      page,
+      limit,
+      where,
+      include,
+      order: [["created_at", "DESC"]],
+    };
+
+    return await PaginationService.paginate(WarehouseHistory, options);
+  }
 
   // Lấy theo ID
   static async getById(id) {
-    return await WarehouseHistory.findByPk(id);
+    return await WarehouseHistory.findByPk(id, {
+      include: [
+        {
+          model: ProductSize,
+          as: "size",
+          attributes: ["id", "product_id", "size", "stock"],
+          include: [
+            {
+              model: Product,
+              as: "product",
+              attributes: ["id", "name"],
+            },
+          ],
+        },
+        {
+          model: Admin,
+          as: "admin",
+          attributes: ["id", "username"],
+        },
+      ],
+    });
   }
 
-  // Tạo mới (admin_id lấy từ req.user.id)
-  static async create({ product_id, change_quantity, admin_id }) {
-    const product = await Product.findByPk(product_id);
-    if (!product) throw new Error("Product not found");
+  static async create({ size_id, change_quantity, admin_id }) {
+    const size = await ProductSize.findByPk(size_id);
+    if (!size) throw new Error("Product size not found");
 
-    const old_quantity = product.stockQuantity;
+    const old_quantity = size.stock;
     const new_quantity = old_quantity + change_quantity;
-    await product.update({ stockQuantity: new_quantity });
 
-    // Tạo lịch sử kho
-    const history = await WarehouseHistory.create({
-      product_id,
+    if (new_quantity < 0) {
+      throw new Error("Stock cannot be negative");
+    }
+
+    await size.update({ stock: new_quantity });
+
+    return await WarehouseHistory.create({
+      size_id,
       admin_id,
       old_quantity,
       new_quantity,
       change_quantity,
     });
-
-    return history;
   }
 
-  // Cập nhật (admin only)
+  // UPDATE
   static async update(id, data) {
     const history = await WarehouseHistory.findByPk(id);
     if (!history) throw new Error("Warehouse history not found");
@@ -75,7 +103,7 @@ static async getAll({
     return history;
   }
 
-  // Xóa (admin only)
+  // DELETE
   static async delete(id) {
     const history = await WarehouseHistory.findByPk(id);
     if (!history) throw new Error("Warehouse history not found");

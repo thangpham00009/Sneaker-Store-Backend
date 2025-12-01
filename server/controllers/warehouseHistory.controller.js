@@ -1,16 +1,15 @@
 import { WarehouseHistoryService } from "../services/warehouseHistory.service.js";
 
-// Lấy tất cả lịch sử kho với pagination + filter
+// GET ALL
 export const getAllWarehouseHistories = async (req, res) => {
   try {
-    const { page, limit, productId, searchKey, searchValue } = req.query;
+    const { page, limit, sizeId, productId } = req.query;
 
     const result = await WarehouseHistoryService.getAll({
       page: parseInt(page) || 1,
       limit: parseInt(limit) || 10,
+      sizeId,
       productId,
-      searchKey,
-      searchValue,
     });
 
     res.status(200).json({ success: true, ...result });
@@ -19,10 +18,11 @@ export const getAllWarehouseHistories = async (req, res) => {
   }
 };
 
-// Lấy lịch sử kho theo ID
+// GET BY ID
 export const getWarehouseHistoryById = async (req, res) => {
   try {
     const history = await WarehouseHistoryService.getById(req.params.id);
+
     if (!history)
       return res.status(404).json({ success: false, message: "Not found" });
 
@@ -32,21 +32,19 @@ export const getWarehouseHistoryById = async (req, res) => {
   }
 };
 
-// Tạo mới lịch sử kho (chỉ admin)
+// CREATE
 export const createWarehouseHistory = async (req, res) => {
   try {
-    const { product_id, change_quantity } = req.body;
+    const { size_id, change_quantity } = req.body;
 
-    if (!req.admin || !req.admin.id) {
+    if (!req.admin?.id) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const admin_id = req.admin.id;
-
     const history = await WarehouseHistoryService.create({
-      product_id,
+      size_id,
       change_quantity,
-      admin_id,
+      admin_id: req.admin.id,
     });
 
     res.status(201).json({ success: true, data: history });
@@ -55,20 +53,14 @@ export const createWarehouseHistory = async (req, res) => {
   }
 };
 
-// Cập nhật lịch sử kho (chỉ admin)
+// UPDATE
 export const updateWarehouseHistory = async (req, res) => {
   try {
-    if (!req.admin || !req.admin.id) {
+    if (!req.admin?.id) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const updated = await WarehouseHistoryService.update(
-      req.params.id,
-      req.body
-    );
-
-    if (!updated)
-      return res.status(404).json({ success: false, message: "Not found" });
+    const updated = await WarehouseHistoryService.update(req.params.id, req.body);
 
     res.status(200).json({ success: true, data: updated });
   } catch (error) {
@@ -76,17 +68,14 @@ export const updateWarehouseHistory = async (req, res) => {
   }
 };
 
-// Xóa lịch sử kho (chỉ admin)
+// DELETE
 export const deleteWarehouseHistory = async (req, res) => {
   try {
-    if (!req.admin || !req.admin.id) {
+    if (!req.admin?.id) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const deleted = await WarehouseHistoryService.delete(req.params.id);
-
-    if (!deleted)
-      return res.status(404).json({ success: false, message: "Not found" });
+    await WarehouseHistoryService.delete(req.params.id);
 
     res.status(200).json({ success: true, message: "Deleted successfully" });
   } catch (error) {

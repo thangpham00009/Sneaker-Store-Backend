@@ -18,6 +18,8 @@ import Admin from "./admin.model.js";
 import UserAddress from "./user_address.model.js";
 import Cart from "./cart.model.js";
 import CartItem from "./cartItem.model.js";
+import ProductSize from "./product_size.model.js";
+
 // ------------------ RELATIONSHIPS ------------------
 
 // Brand - Product (1-N)
@@ -85,10 +87,9 @@ Order.hasOne(Invoice, { foreignKey: "order_id", as: "invoice" });
 Order.belongsTo(ShippingCost, { foreignKey: "shipping_cost_id", as: "shippingCost" });
 ShippingCost.hasMany(Order, { foreignKey: "shipping_cost_id", as: "orders" });
 
-
-// Product - WarehouseHistory (1-N)
-Product.hasMany(WarehouseHistory, { foreignKey: "product_id", as: "warehouseHistories" });
-WarehouseHistory.belongsTo(Product, { foreignKey: "product_id", as: "product" });
+// ProductSize - WarehouseHistory (1-N)
+ProductSize.hasMany(WarehouseHistory, { foreignKey: "size_id", as: "warehouseHistories" });
+WarehouseHistory.belongsTo(ProductSize, { foreignKey: "size_id", as: "size" });
 
 // Admin - WarehouseHistory (1-N)
 Admin.hasMany(WarehouseHistory, { foreignKey: "admin_id", as: "warehouseHistories" });
@@ -117,6 +118,10 @@ CartItem.belongsTo(Cart, { foreignKey: "cart_id", as: "cart" });
 Product.hasMany(CartItem, { foreignKey: "product_id", as: "cartItems" });
 CartItem.belongsTo(Product, { foreignKey: "product_id", as: "product" });
 
+// Product - ProductSize (1-N)
+Product.hasMany(ProductSize, { foreignKey: "product_id", as: "sizes" });
+ProductSize.belongsTo(Product, { foreignKey: "product_id", as: "product" });
+
 
 export {
   sequelize,
@@ -137,4 +142,5 @@ export {
   UserAddress,
   Cart,
   CartItem,
+  ProductSize,
 };
