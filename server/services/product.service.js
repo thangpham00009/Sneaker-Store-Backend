@@ -57,7 +57,7 @@ export const ProductService = {
         { model: Brand, as: "brand", attributes: ["id", "name", "slug"] },
         { model: Category, as: "categories", attributes: ["id", "name", "slug"], through: { attributes: [] } },
         { model: ProductImage, as: "images", attributes: ["id", "url", "isDefault", "allText"] },
-        { model: ProductSize, as: "sizes", attributes: ["id", "size"],},
+        { model: ProductSize, as: "sizes", attributes: ["id", "size" , "stock"],},
       ],
     });
   },
@@ -69,7 +69,7 @@ export const ProductService = {
         { model: Brand, as: "brand", attributes: ["id", "name", "slug"] },
         { model: Category, as: "categories", attributes: ["id", "name", "slug"], through: { attributes: [] } },
         { model: ProductImage, as: "images", attributes: ["id", "url", "isDefault", "allText"] },
-        { model: ProductSize, as: "sizes", attributes: ["id", "size"], through: { attributes: [] } },
+        { model: ProductSize, as: "sizes", attributes: ["id", "size", "stock"]},
       ],
     });
   },

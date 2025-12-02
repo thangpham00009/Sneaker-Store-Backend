@@ -19,6 +19,7 @@ import UserAddress from "./user_address.model.js";
 import Cart from "./cart.model.js";
 import CartItem from "./cartItem.model.js";
 import ProductSize from "./product_size.model.js";
+import PaymentMethod from "./payment_method.model.js";
 
 // ------------------ RELATIONSHIPS ------------------
 
@@ -122,6 +123,9 @@ CartItem.belongsTo(Product, { foreignKey: "product_id", as: "product" });
 Product.hasMany(ProductSize, { foreignKey: "product_id", as: "sizes" });
 ProductSize.belongsTo(Product, { foreignKey: "product_id", as: "product" });
 
+// Order - PaymentMethod (N-1)
+PaymentMethod.hasMany(Order, { foreignKey: "payment_method_id", as: "orders" });
+Order.belongsTo(PaymentMethod, { foreignKey: "payment_method_id", as: "paymentMethod" });
 
 export {
   sequelize,
@@ -143,4 +147,5 @@ export {
   Cart,
   CartItem,
   ProductSize,
+  PaymentMethod,
 };

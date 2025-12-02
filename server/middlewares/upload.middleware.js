@@ -22,7 +22,7 @@ export const dynamicUpload = (baseFolder, fieldName) => {
 
       return {
         folder: `PERN_SNEAKER/${baseFolder}/${folderName}`,
-        allowed_formats: ["jpg", "jpeg", "png", "gif"],
+        allowed_formats: ["jpg", "jpeg", "png", "gif", "webp"],
         transformation: [{ width: 1000, height: 1000, crop: "limit" }],
         use_filename: true,
         unique_filename: true,
@@ -38,7 +38,7 @@ export const uploadCategory = dynamicUpload("Categories", "image");
 export const uploadBrand = dynamicUpload("Brands", "image");
 export const uploadProduct = dynamicUpload("Products", "image");
 export const uploadPromotion = dynamicUpload("Promotions", "image");
-
+export const uploadPaymentLogo = dynamicUpload("Payments", "image");
 /**
  * Upload nhiều ảnh sản phẩm, folder theo tên sản phẩm
  */
@@ -53,7 +53,7 @@ export const uploadProductImages = (req, res, next) => {
 
       return {
         folder: `PERN_SNEAKER/Products/${folderName}`,
-        allowed_formats: ["jpg", "jpeg", "png", "gif"],
+        allowed_formats: ["jpg", "jpeg", "png", "gif", "webp"],
         transformation: [{ width: 1000, height: 1000, crop: "limit" }],
         use_filename: true,
         unique_filename: true,
