@@ -19,8 +19,12 @@ const User = sequelize.define(
     },
 
     password: { type: DataTypes.STRING(255), allowNull: false },
-
-    created_at: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
+    status: {
+          type: DataTypes.ENUM("Active", "Inactive"),
+          allowNull: false,
+          defaultValue: "Active",
+        },
+        created_at: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
     updated_at: { type: DataTypes.DATE, defaultValue: Sequelize.NOW },
   },
   {

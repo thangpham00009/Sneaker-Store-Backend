@@ -3,6 +3,11 @@ import {
   loginUserService,
   refreshUserTokenService,
   getUserProfileService,
+  adminGetAllUsersService,
+  adminGetUserByIdService,
+  adminDeleteUserService,
+  adminUserStatsService,
+  adminUpdateUserService
 } from "../services/user.service.js";
 
 // REGISTER
@@ -116,5 +121,62 @@ export const getUserProfile = async (req, res) => {
       status: "error",
       message: error.message,
     });
+  }
+};
+// GET ALL USERS
+export const adminGetAllUsers = async (req, res) => {
+  try {
+    const users = await adminGetAllUsersService();
+    res.status(200).json({ status: "success", data: users });
+  } catch (error) {
+    res.status(400).json({ status: "error", message: error.message });
+  }
+};
+
+// GET USER BY ID
+export const adminGetUserById = async (req, res) => {
+  try {
+    const user = await adminGetUserByIdService(req.params.id);
+    res.status(200).json({ status: "success", data: user });
+  } catch (error) {
+    res.status(404).json({ status: "error", message: error.message });
+  }
+};
+
+// UPDATE FULL USER (admin)
+export const adminUpdateUser = async (req, res) => {
+  try {
+    const user = await adminUpdateUserService(req.params.id, req.body);
+
+    res.status(200).json({
+      status: "success",
+      data: user,
+      message: "User updated successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+// DELETE USER
+export const adminDeleteUser = async (req, res) => {
+  try {
+    const result = await adminDeleteUserService(req.params.id);
+    res.status(200).json({ status: "success", message: result.message });
+  } catch (error) {
+    res.status(400).json({ status: "error", message: error.message });
+  }
+};
+
+// USER STATISTICS (FOR DASHBOARD)
+export const adminUserStats = async (req, res) => {
+  try {
+    const stats = await adminUserStatsService();
+    res.status(200).json({ status: "success", data: stats });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: error.message });
   }
 };

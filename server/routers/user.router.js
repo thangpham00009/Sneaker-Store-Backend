@@ -5,8 +5,14 @@ import {
   logoutUser,
   refreshUserToken, 
   getUserProfile,
+   adminGetAllUsers,
+  adminGetUserById,
+  adminDeleteUser,
+  adminUserStats,
+  adminUpdateUser
 } from "../controllers/user.controller.js";
 import { user } from "../middlewares/user.middleware.js";
+import { admin } from "../middlewares/auth.middleware.js";
 
 const userRouter = express.Router();
 
@@ -18,4 +24,13 @@ userRouter.post("/api/v1/user/refresh-token", refreshUserToken);
 // Protected routes
 userRouter.post("/api/v1/user/logout", user, logoutUser);
 userRouter.get("/api/v1/user/profile", user, getUserProfile);
+
+userRouter.get("/api/v1/admin/users", admin, adminGetAllUsers);
+userRouter.get("/api/v1/admin/users/:id", admin, adminGetUserById);
+
+userRouter.put("/api/v1/admin/users/:id", admin, adminUpdateUser);
+
+userRouter.delete("/api/v1/admin/users/:id", admin, adminDeleteUser);
+
+userRouter.get("/api/v1/admin/users/stats", admin, adminUserStats);
 export default userRouter;

@@ -78,3 +78,79 @@ export const getUserProfileService = async (userId) => {
     throw error;
   }
 };
+// Get all (admin)
+export const adminGetAllUsersService = async () => {
+  try {
+    const users = await User.findAll({
+      order: [["created_at", "DESC"]],
+      attributes: { exclude: ["password"] },
+    });
+    return users;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get by id (admin)
+export const adminGetUserByIdService = async (id) => {
+  try {
+    const user = await User.findByPk(id, {
+      attributes: { exclude: ["password"] },
+    });
+    if (!user) throw new Error("User not found");
+    return user;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// UPDATE FULL USER (admin)
+export const adminUpdateUserService = async (id, updateData) => {
+  try {
+    const user = await User.findByPk(id);
+    if (!user) throw new Error("User not found");
+
+    // Nếu gửi password thì hash lại
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 10);
+    }
+
+    await user.update(updateData);
+
+    const { password, ...userWithoutPassword } = user.toJSON();
+    return userWithoutPassword;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+//delete user
+export const adminDeleteUserService = async (id) => {
+  try {
+    const user = await User.findByPk(id);
+    if (!user) throw new Error("User not found");
+
+    await user.destroy();
+    return { message: "User deleted successfully" };
+  } catch (error) {
+    throw error;
+  }
+};
+
+// customer stats
+export const adminUserStatsService = async () => {
+  try {
+    const totalUsers = await User.count();
+    const activeUsers = await User.count({ where: { is_active: true } });
+    const bannedUsers = await User.count({ where: { is_active: false } });
+
+    return {
+      totalUsers,
+      activeUsers,
+      bannedUsers,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
