@@ -1,55 +1,141 @@
+import { Op } from "sequelize";
 import { sequelize, Product, ProductImage, Brand, Category, ProductSize } from "../models/index.js";
 import { PaginationService } from "./pagination.service.js";
 
 export const ProductService = {
-  // Lấy tất cả sản phẩm
-  async getAll({ page = 1, limit = 10, search, status, categoryId, brandId, sort }) {
-    const where = {};
-    if (status) where.status = status;
-    if (brandId) where.brand_id = parseInt(brandId);
+// Lấy tất cả sản phẩm
+async getAll({ page = 1, limit = 10, search, status, categoryId, brandId, sort }) {
+  const where = {};
+  if (status) where.status = status;
+  if (brandId) where.brand_id = parseInt(brandId);
 
-    const include = [
-      { model: Brand, as: "brand", attributes: ["id", "name"] },
-      { model: ProductImage, as: "images", attributes: ["id", "url", "isDefault", "allText"] },
-      { model: ProductSize, as: "sizes", attributes: ["id", "size" , "stock"] },
-    ];
+  const include = [
+    { model: Brand, as: "brand", attributes: ["id", "name"] },
+    { model: ProductImage, as: "images", attributes: ["id", "url", "isDefault", "allText"] },
+    { model: ProductSize, as: "sizes", attributes: ["id", "size", "stock"] },
+    {
+      model: Category,
+      as: "categories",
+      attributes: ["id", "name"],
+      through: { attributes: [] },
+      ...(categoryId ? { where: { id: parseInt(categoryId) } } : {}),
+    },
+  ];
 
-    if (categoryId) {
-      include.push({
-        model: Category,
-        as: "categories",
-        attributes: ["id", "name"],
-        where: { id: parseInt(categoryId) },
-        through: { attributes: [] },
-      });
-    } else {
-      include.push({
-        model: Category,
-        as: "categories",
-        attributes: ["id", "name"],
-        through: { attributes: [] },
-      });
-    }
+  let order = [["created_at", "DESC"]];
+  switch (sort) {
+    case "name_asc": order = [["name", "ASC"]]; break;
+    case "name_desc": order = [["name", "DESC"]]; break;
+    case "price_asc": order = [["price", "ASC"]]; break;
+    case "price_desc": order = [["price", "DESC"]]; break;
+  }
 
-    let order = [["created_at", "DESC"]];
-    if (sort) {
-      switch (sort) {
-        case "name_asc": order = [["name", "ASC"]]; break;
-        case "name_desc": order = [["name", "DESC"]]; break;
-        case "price_asc": order = [["price", "ASC"]]; break;
-        case "price_desc": order = [["price", "DESC"]]; break;
+  if (search) {
+    const keyword = search.toLowerCase();
+
+    const findByName = Product.findAll({
+      where: {
+        ...where,
+        name: sequelize.where(
+          sequelize.fn("LOWER", sequelize.col("Product.name")),
+          "LIKE",
+          `%${keyword}%`
+        ),
+      },
+      include,
+      order,
+    });
+
+    const findByBrand = Product.findAll({
+      where,
+      include: [
+        ...include,
+        {
+          model: Brand,
+          as: "brand",
+          where: sequelize.where(
+            sequelize.fn("LOWER", sequelize.col("brand.name")),
+            "LIKE",
+            `%${keyword}%`
+          ),
+        },
+      ],
+      order,
+    });
+
+    const findByCategory = Product.findAll({
+      where,
+      include: [
+        ...include,
+        {
+          model: Category,
+          as: "categories",
+          through: { attributes: [] },
+          where: sequelize.where(
+            sequelize.fn("LOWER", sequelize.col("categories.name")),
+            "LIKE",
+            `%${keyword}%`
+          ),
+        },
+      ],
+      order,
+    });
+
+    const [byName, byBrand, byCategory] = await Promise.all([
+      findByName,
+      findByBrand,
+      findByCategory,
+    ]);
+
+    const merged = [...byName, ...byBrand, ...byCategory];
+    const matched = [];
+    const seen = new Set();
+
+    for (const p of merged) {
+      if (!seen.has(p.id)) {
+        seen.add(p.id);
+        matched.push(p);
       }
     }
 
-    return PaginationService.paginate(Product, { 
-      page, 
-      limit, 
-      where, 
-      include, 
-      search: search ? { key: "name", value: search } : null, 
-      order 
+    const others = await Product.findAll({
+      where: {
+        ...where,
+        id: { [Op.notIn]: Array.from(seen) }
+      },
+      include,
+      order,
     });
-  },
+
+    const all = [...matched, ...others];
+
+    const total = all.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const items = all.slice(start, start + limit);
+
+    return {
+      items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+      },
+      matchedCount: matched.length,
+    };
+  }
+
+
+  return PaginationService.paginate(Product, {
+    page,
+    limit,
+    where,
+    include,
+    order,
+  });
+},
+
 
   async getById(id) {
     return Product.findByPk(id, {
