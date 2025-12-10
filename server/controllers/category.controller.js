@@ -76,7 +76,13 @@ export const deleteCategory = async (req, res) => {
 
 export const getCategoryProducts = async (req, res) => {
   try {
-    const products = await CategoryService.getProducts(req.params.id);
+    const filters = { ...req.query };
+
+    const products = await CategoryService.getProductsBySlug(
+      req.params.slug,
+      filters
+    );
+
     res.status(200).json({ success: true, data: products });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

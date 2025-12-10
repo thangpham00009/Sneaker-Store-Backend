@@ -29,6 +29,6 @@ categoryRouter.put(
   updateCategory
 );
 categoryRouter.delete("/api/v1/categories/:id", admin, deleteCategory);
-categoryRouter.get("/api/v1/categories/:id/products", getCategoryProducts);
+categoryRouter.get("/api/v1/categories/:slug/products", getCategoryProducts);
 
 export default categoryRouter;

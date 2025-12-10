@@ -1,4 +1,5 @@
 import Category from "../models/category.model.js";
+import { Product, Brand, ProductImage } from "../models/index.js";
 import {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -6,6 +7,7 @@ import {
 import { PaginationService } from "./pagination.service.js";
 
 export const CategoryService = {
+  
  async getAll({ page = 1, limit = 10, search, status }) {
     const where = {};
     if (status) where.status = status;
@@ -71,10 +73,90 @@ export const CategoryService = {
       throw error;
     }
   },
-   async getProducts(categoryId) {
-    return await Product.findAll({
-      where: { category_id: categoryId },
-      order: [["created_at", "DESC"]],
-    });
-  },
+ async getProducts(categoryId, filters = {}) {
+  const {
+    page = 1,
+    limit = 20,
+    brandId,
+    minPrice,
+    maxPrice,
+    sort,
+    search
+  } = filters;
+
+  const where = {
+    status: "Active"
+  };
+
+  if (brandId) where.brand_id = parseInt(brandId);
+
+  if (minPrice || maxPrice) {
+    where.discountPrice = {};
+    if (minPrice) where.discountPrice[Op.gte] = Number(minPrice);
+    if (maxPrice) where.discountPrice[Op.lte] = Number(maxPrice);
+  }
+
+  let order = [["created_at", "DESC"]];
+
+  switch (sort) {
+    case "price_asc":
+      order = [["discountPrice", "ASC"]];
+      break;
+
+    case "price_desc":
+      order = [["discountPrice", "DESC"]];
+      break;
+
+    case "name_asc":
+      order = [["name", "ASC"]];
+      break;
+
+    case "name_desc":
+      order = [["name", "DESC"]];
+      break;
+  }
+
+  const include = [
+    {
+      model: Category,
+      as: "categories",
+      where: { id: categoryId },
+      attributes: ["id", "name", "slug"],
+      through: { attributes: [] }
+    },
+    {
+      model: Brand,
+      as: "brand",
+      attributes: ["id", "name", "slug"]
+    },
+    {
+      model: ProductImage,
+      as: "images",
+      attributes: ["id", "url", "isDefault"]
+    }
+  ];
+
+  if (search) {
+    where.name = sequelize.where(
+      sequelize.fn("LOWER", sequelize.col("Product.name")),
+      "LIKE",
+      `%${search.toLowerCase()}%`
+    );
+  }
+
+  // PAGINATION
+  return PaginationService.paginate(Product, {
+    page,
+    limit,
+    where,
+    include,
+    order
+  });
+},
+ async getProductsBySlug(slug, filters = {}) {
+  const category = await this.getBySlug(slug);
+  if (!category) throw new Error("Category not found");
+  return await this.getProducts(category.id, filters);
+}
+
 };
