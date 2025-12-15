@@ -1,10 +1,20 @@
 import { Sequelize, DataTypes } from "sequelize";
 import { sequelize } from "../config/connect.js";
+import { User } from "./index.js";
 
 const UserAddress = sequelize.define("UserAddress", {
   id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
+      user_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: User,
+        key: 'id'
+      },
+      onDelete: 'CASCADE'
+    },
   receiver_name: { type: DataTypes.STRING(255), allowNull: false },
- receiver_phone: {
+  receiver_phone: {
       type: DataTypes.STRING(20),
       allowNull: false,
       validate: {

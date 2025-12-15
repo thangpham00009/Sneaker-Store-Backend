@@ -38,7 +38,11 @@ async getUserCart(userId) {
 
     // Tìm theo product_id **và size**
     let item = await CartItem.findOne({
-      where: { cart_id: cart.id, product_id: productId, size },
+      where: {
+      cart_id: cart.id,
+      product_id: Number(productId),
+      size: String(size),
+    },
     });
 
     if (item) {
@@ -58,33 +62,43 @@ async getUserCart(userId) {
 
 
   // Cập nhật số lượng sản phẩm
-  async updateItem(userId, productId, quantity) {
-    const cart = await this.getUserCart(userId);
+async updateItem(userId, productId, quantity, size) {
+  const cart = await this.getUserCart(userId);
 
-    const item = await CartItem.findOne({
-      where: { cart_id: cart.id, product_id: productId },
-    });
+  const item = await CartItem.findOne({
+    where: {
+      cart_id: cart.id,
+      product_id: productId,
+      size,
+    },
+  });
 
-    if (!item) throw new Error("Item not found in cart");
+  if (!item) throw new Error("Item not found in cart");
 
-    item.quantity = quantity;
-    await item.save();
-    return item;
-  }
+  item.quantity = quantity;
+  await item.save();
+  return item;
+}
+
 
   // Xóa sản phẩm khỏi cart
-  async removeItem(userId, productId) {
-    const cart = await this.getUserCart(userId);
+async removeItem(userId, productId, size) {
+  const cart = await this.getUserCart(userId);
 
-    const item = await CartItem.findOne({
-      where: { cart_id: cart.id, product_id: productId },
-    });
+  const item = await CartItem.findOne({
+    where: {
+      cart_id: cart.id,
+      product_id: productId,
+      size,
+    },
+  });
 
-    if (!item) throw new Error("Item not found in cart");
+  if (!item) throw new Error("Item not found in cart");
 
-    await item.destroy();
-    return true;
-  }
+  await item.destroy();
+  return true;
+}
+
 
   // Xóa toàn bộ cart
   async clearCart(userId) {

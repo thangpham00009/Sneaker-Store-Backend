@@ -9,7 +9,9 @@ import {
   adminGetUserById,
   adminDeleteUser,
   adminUserStats,
-  adminUpdateUser
+  adminUpdateUser,
+  updateUserProfile,
+  addUserAddress
 } from "../controllers/user.controller.js";
 import { user } from "../middlewares/user.middleware.js";
 import { admin } from "../middlewares/auth.middleware.js";
@@ -33,4 +35,7 @@ userRouter.put("/api/v1/admin/users/:id", admin, adminUpdateUser);
 userRouter.delete("/api/v1/admin/users/:id", admin, adminDeleteUser);
 
 userRouter.get("/api/v1/admin/users/stats", admin, adminUserStats);
+userRouter.put("/api/v1/user/profile", user, updateUserProfile);
+userRouter.post("/api/v1/user/address", user, addUserAddress);
+
 export default userRouter;

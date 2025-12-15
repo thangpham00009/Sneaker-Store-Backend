@@ -16,14 +16,26 @@ async addToCart(req, res) {
     const userId = req.user.id;
     const { productId, quantity, size } = req.body;
 
-    if (!size) return res.status(400).json({ message: "Chưa chọn size" });
+    if (!size) {
+      return res.status(400).json({ message: "Chưa chọn size" });
+    }
 
-    const item = await CartService.addItem(userId, productId, quantity, size);
+    const productIdNum = Number(productId);
+
+    const item = await CartService.addItem(
+      userId,
+      productIdNum,
+      quantity,
+      size
+    );
+
     res.json(item);
   } catch (err) {
+    console.error("ADD CART ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 }
+
 
 
 async updateCartItem(req, res) {
@@ -39,17 +51,29 @@ async updateCartItem(req, res) {
 }
 
 
-  async removeCartItem(req, res) {
-    try {
-      const userId = req.user.id;
-      const { productId } = req.params;
+async removeCartItem(req, res) {
+  try {
+    const userId = req.user.id;
+    const { productId } = req.params;
+    const { size } = req.query; 
 
-      await CartService.removeItem(userId, productId);
-      res.json({ message: "Item removed from cart" });
-    } catch (err) {
-      res.status(500).json({ message: err.message });
+    if (!size) {
+      return res.status(400).json({ message: "Thiếu size" });
     }
+
+    await CartService.removeItem(
+      userId,
+      Number(productId),
+      String(size)
+    );
+
+    res.json({ message: "Item removed from cart" });
+  } catch (err) {
+    console.error("REMOVE CART ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
+}
+
     async clearCart(req, res) {
     try {
       const userId = req.user.id;

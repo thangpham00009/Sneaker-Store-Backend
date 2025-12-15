@@ -1,10 +1,11 @@
 import bcrypt from "bcrypt";
-import { User } from "../models/index.js";
+import { User, UserAddress } from "../models/index.js";
 
 import {
   generateUserTokens,
   verifyUserRefreshToken,
 } from "../middlewares/user.middleware.js";
+import { Op } from "sequelize";
 
 // REGISTER USER
 export const registerUserService = async (userData) => {
@@ -69,11 +70,31 @@ export const refreshUserTokenService = async (refreshToken) => {
 // GET USER PROFILE
 export const getUserProfileService = async (userId) => {
   try {
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId, {
+      attributes: { exclude: ["password"] },
+      include: [
+        {
+          model: UserAddress,
+          as: "addresses",
+          attributes: [
+            "id",
+            "receiver_name",
+            "receiver_phone",
+            "address_line",
+            "ward",
+            "district",
+            "city",
+            "country",
+            "note",
+            "is_default",
+          ],
+        },
+      ],
+    });
+
     if (!user) throw new Error("User not found");
 
-    const { password, ...userWithoutPassword } = user.toJSON();
-    return userWithoutPassword;
+    return user;
   } catch (error) {
     throw error;
   }
@@ -150,6 +171,111 @@ export const adminUserStatsService = async () => {
       activeUsers,
       bannedUsers,
     };
+  } catch (error) {
+    throw error;
+  }
+};
+//UPDATE PROFILE
+export const updateUserProfileService = async (userId, updateData) => {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) throw new Error("User not found");
+
+    const {
+      addresses,
+      status,
+      role,
+      password,
+      ...safeUserData
+    } = updateData;
+
+    if (password) {
+      safeUserData.password = await bcrypt.hash(password, 10);
+    }
+    await user.update(safeUserData);
+    if (addresses && Array.isArray(addresses)) {
+      for (const addr of addresses) {
+        if (!addr.id) continue; 
+
+        const { is_default, ...addressData } = addr;
+        await UserAddress.update(addressData, {
+          where: {
+            id: addr.id,
+            user_id: userId,
+          },
+        });
+        if (is_default === true) {
+          await UserAddress.update(
+            { is_default: false },
+            {
+              where: {
+                user_id: userId,
+                id: { [Op.ne]: addr.id },
+              },
+            }
+          );
+          await UserAddress.update(
+            { is_default: true },
+            {
+              where: {
+                id: addr.id,
+                user_id: userId,
+              },
+            }
+          );
+        }
+      }
+    }
+
+    const updatedUser = await User.findByPk(userId, {
+      attributes: { exclude: ["password"] },
+      include: [
+        {
+          model: UserAddress,
+          as: "addresses",
+          attributes: [
+            "id",
+            "receiver_name",
+            "receiver_phone",
+            "address_line",
+            "ward",
+            "district",
+            "city",
+            "country",
+            "note",
+            "is_default",
+          ],
+        },
+      ],
+    });
+
+    return updatedUser;
+  } catch (error) {
+    throw error;
+  }
+};
+// ADD USER ADDRESS
+export const addUserAddressService = async (userId, addressData) => {
+  try {
+    if (addressData.is_default) {
+      const existingDefault = await UserAddress.findOne({
+        where: { user_id: userId, is_default: true },
+      });
+
+      if (existingDefault) {
+        await UserAddress.update(
+          { is_default: false },
+          { where: { user_id: userId } }
+        );
+      }
+    }
+
+    const newAddress = await UserAddress.create({
+      ...addressData,
+      user_id: userId,
+    });
+
+    return newAddress;
   } catch (error) {
     throw error;
   }

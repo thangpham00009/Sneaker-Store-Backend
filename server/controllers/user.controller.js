@@ -1,3 +1,4 @@
+import { UserAddress } from "../models/index.js";
 import {
   registerUserService,
   loginUserService,
@@ -7,7 +8,9 @@ import {
   adminGetUserByIdService,
   adminDeleteUserService,
   adminUserStatsService,
-  adminUpdateUserService
+  adminUpdateUserService,
+  updateUserProfileService, 
+  addUserAddressService 
 } from "../services/user.service.js";
 
 // REGISTER
@@ -178,5 +181,33 @@ export const adminUserStats = async (req, res) => {
     res.status(200).json({ status: "success", data: stats });
   } catch (error) {
     res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+// Update profile + edit addresses
+export const updateUserProfile = async (req, res) => {
+  try {
+    const updatedUser = await updateUserProfileService(req.user.id, req.body);
+    res.status(200).json({
+      status: "success",
+      data: updatedUser,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    res.status(400).json({ status: "error", message: error.message });
+  }
+};
+
+// Add new address 
+export const addUserAddress = async (req, res) => {
+  try {
+    const newAddress = await addUserAddressService(req.user.id, req.body);
+    res.status(201).json({
+      status: "success",
+      data: newAddress,
+      message: "Address added successfully",
+    });
+  } catch (error) {
+    res.status(400).json({ status: "error", message: error.message });
   }
 };
