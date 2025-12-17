@@ -12,6 +12,7 @@ import warehouseHistoryRouter from "./routers/warehouseHistory.router.js";
 import userRouter from "./routers/user.router.js";
 import cartRouter from "./routers/cart.router.js";
 import paymentRouter from "./routers/paymentMethod.router.js";
+import addressRouter from "./routers/address.routes.js";
 dotenv.config();
 const app = express();
 app.use(
@@ -30,6 +31,7 @@ const port = 8080;
   try {
     await connectDB();
     await sequelize.sync({ alter: true });
+    app.use(addressRouter);
     app.use(categoryRouter);
     app.use(brandRouter);
     app.use(paymentRouter);
