@@ -42,8 +42,16 @@ Category.belongsToMany(Product, {
   foreignKey: "category_id",
   as: "products",
 });
+// ProductSize - OrderDetail (1-N)
+ProductSize.hasMany(OrderDetail, {
+  foreignKey: "product_size_id",
+  as: "orderDetails",
+});
+OrderDetail.belongsTo(ProductSize, {
+  foreignKey: "product_size_id",
+  as: "productSize",
+});
 
-// ... các quan hệ còn lại giữ nguyên
 // User - Order (1-N)
 User.hasMany(Order, { foreignKey: "user_id", as: "orders" });
 Order.belongsTo(User, { foreignKey: "user_id", as: "user" });
@@ -115,10 +123,6 @@ Cart.belongsTo(User, { foreignKey: "user_id", as: "user" });
 Cart.hasMany(CartItem, { foreignKey: "cart_id", as: "items" });
 CartItem.belongsTo(Cart, { foreignKey: "cart_id", as: "cart" });
 
-// CartItem - Product (1-1)
-Product.hasMany(CartItem, { foreignKey: "product_id", as: "cartItems" });
-CartItem.belongsTo(Product, { foreignKey: "product_id", as: "product" });
-
 // Product - ProductSize (1-N)
 Product.hasMany(ProductSize, { foreignKey: "product_id", as: "sizes" });
 ProductSize.belongsTo(Product, { foreignKey: "product_id", as: "product" });
@@ -126,6 +130,18 @@ ProductSize.belongsTo(Product, { foreignKey: "product_id", as: "product" });
 // Order - PaymentMethod (N-1)
 PaymentMethod.hasMany(Order, { foreignKey: "payment_method_id", as: "orders" });
 Order.belongsTo(PaymentMethod, { foreignKey: "payment_method_id", as: "paymentMethod" });
+
+// CartItem - ProductSize (N-1)
+ProductSize.hasMany(CartItem, {
+  foreignKey: "product_size_id",
+  as: "cartItems",
+});
+
+CartItem.belongsTo(ProductSize, {
+  foreignKey: "product_size_id",
+  as: "productSize",
+});
+
 
 export {
   sequelize,

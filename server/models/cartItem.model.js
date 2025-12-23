@@ -12,15 +12,14 @@ const CartItem = sequelize.define(
       onUpdate: "CASCADE",
       onDelete: "CASCADE",
     },
-    product_id: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-      references: { model: "products", key: "id" },
-      onUpdate: "CASCADE",
-      onDelete: "CASCADE",
-    },
+    product_size_id: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+        references: { model: "product_sizes", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
+      },
     quantity: { type: DataTypes.INTEGER, defaultValue: 1 },
-    size: { type: DataTypes.STRING, allowNull: true },
   },
   {
     tableName: "cart_items",

@@ -6,6 +6,7 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 // Middleware xác thực User
 export const user = async (req, res, next) => {
+    console.log("❌ USER middleware hit:", req.method, req.originalUrl);
   try {
     const token = req.cookies.userToken;
 
@@ -38,18 +39,34 @@ export const user = async (req, res, next) => {
   }
 };
 
-export const generateUserTokens = (user) => {
-  const token = jwt.sign(
-    { id: user.id, username: user.username },
-    JWT_SECRET,
-    { expiresIn: "1h" }
-  );
+export const guest = async (req, res, next) => {
+  try {
+    const token = req.cookies.userToken;
 
-  const refreshToken = jwt.sign(
-    { id: user.id },
-    JWT_REFRESH_SECRET,
-    { expiresIn: "7d" }
-  );
+    if (!token) {
+      req.user = null;
+      return next();
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findByPk(decoded.id);
+
+    req.user = user || null;
+    next();
+  } catch (err) {
+    req.user = null;
+    next();
+  }
+};
+
+export const generateUserTokens = (user) => {
+  const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
+    expiresIn: "1h",
+  });
+
+  const refreshToken = jwt.sign({ id: user.id }, JWT_REFRESH_SECRET, {
+    expiresIn: "7d",
+  });
 
   return { token, refreshToken };
 };
